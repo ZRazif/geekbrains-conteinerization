@@ -64,3 +64,21 @@ subjects:
 Сохраните манифесты в любом публичном Git репозитории, например GitHub, и пришлите ссылку на репозиторий.
 
 Желаю удачи!
+
+
+
+kubectl create ns kubedoom
+
+kubectl config set-context --current --namespace=kubedoom
+
+Создаем yml файл с содержимым.
+Обязательно сохраняем в Visual Studio Code иначе следующая команда не срабатывает!
+
+kubectl apply -f kubedoom.yaml
+
+kubectl get pod
+
+kubectl port-forward pod/kubedoom-deployment-777767668c-ps546 5901:5900
+
+https://www.realvnc.com/en/connect/download/viewer/ - скачиваем и устанавливаем VNC. 
+В нем подключаемся  по адресу `127.0.0.1:5901`, вводим пароль `idbehold` - DOOM установлен, можно играть.
