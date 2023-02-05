@@ -106,6 +106,109 @@ $ kubectl get pvc
 NAME         STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS       AGE
 pg-storage   Bound    pvc-26e57360-f992-41c4-be4c-209fa86ed440   10Gi       RWX            csi-ceph-ssd-ms1   43s
 
+$ kubectl create secret generic pg-secret --from-literal=PASS=testpassword
+secret/pg-secret created
+
+$ kubectl get secret pg-secret
+NAME        TYPE     DATA   AGE
+pg-secret   Opaque   1      39s
+
+$ kubectl get secret pg-secret -oyaml
+apiVersion: v1
+data:
+  PASS: dGVzdHBhc3N3b3Jk
+kind: Secret
+metadata:
+  creationTimestamp: "2023-02-05T15:26:33Z"
+  name: pg-secret
+  namespace: pg
+  resourceVersion: "10834"
+  selfLink: /api/v1/namespaces/pg/secrets/pg-secret
+  uid: 0088ba84-4081-414e-9ce6-38e43bf25608
+type: Opaque
+
+$ kubectl apply -f homework/4.resources-and-persistence/deployment.yaml
+deployment.apps/pg-db created
+
+$ kubectl get po
+NAME                     READY   STATUS    RESTARTS   AGE
+pg-db-85db8cc466-s9j7w   0/1     Pending   0          37s
+
+$ kubectl describe po pg-db-85db8cc466-s9j7w
+Name:             pg-db-85db8cc466-s9j7w
+Namespace:        pg
+Priority:         0
+Service Account:  default
+Node:             <none>
+Labels:           app=pg-db
+                  pod-template-hash=85db8cc466
+Annotations:      kubernetes.io/limit-ranger:
+                    LimitRanger plugin set: cpu, memory request for init container mount-permissions-fix; cpu, memory limit for init container mount-permissio...
+Status:           Pending
+IP:               
+IPs:              <none>
+Controlled By:    ReplicaSet/pg-db-85db8cc466
+Init Containers:
+  mount-permissions-fix:
+    Image:      busybox
+    Port:       <none>
+    Host Port:  <none>
+    Command:
+      sh
+      -c
+      chmod 777 /var/lib/postgresql/data
+    Limits:
+      cpu:     500m
+      memory:  512Mi
+    Requests:
+      cpu:        100m
+      memory:     64Mi
+    Environment:  <none>
+    Mounts:
+      /var/lib/postgresql/data from data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-48q5s (ro)
+Containers:
+  postgres:
+    Image:      postgres:10.13
+    Port:       5432/TCP
+    Host Port:  0/TCP
+    Limits:
+      cpu:     1
+      memory:  512Mi
+    Requests:
+      cpu:     200m
+      memory:  256Mi
+    Environment:
+      POSTGRES_USER:      testuser
+      POSTGRES_DB:        testdatabase
+      PGDATA:             /var/lib/postgresql/data/pgdata
+      POSTGRES_PASSWORD:  <set to the key 'PASS' in secret 'pg-secret'>  Optional: false
+    Mounts:
+      /var/lib/postgresql/data from data (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-48q5s (ro)
+Conditions:
+  Type           Status
+  PodScheduled   False 
+Volumes:
+  data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  pg-storage
+    ReadOnly:   false
+  kube-api-access-48q5s:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason             Age                 From                Message
+  ----     ------             ----                ----                -------
+  Normal   NotTriggerScaleUp  2m5s                cluster-autoscaler  pod didn't trigger scale-up:
+  Warning  FailedScheduling   8s (x3 over 2m16s)  default-scheduler   0/2 nodes are available: 1 node(s) had taint {CriticalAddonsOnly: True}, that the pod didn't tolerate, 1 node(s) had volume node affinity conflict.
 
 
 
