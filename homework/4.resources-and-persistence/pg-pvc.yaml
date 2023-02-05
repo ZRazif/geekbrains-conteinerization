@@ -2,12 +2,11 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: pg-storage
-  namespace: pg
+  name: pg-pvc
 spec:
   accessModes:
   - ReadWriteMany
   resources:
     requests:
       storage: 10Gi
-  storageClassName: "csi-ceph-ssd-ms1-retain"
+  storageClassName: "csi-ceph-ssd-ms1"
