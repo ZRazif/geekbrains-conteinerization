@@ -97,7 +97,7 @@ csi-high-iops-gz1-retain   cinder.csi.openstack.org   Retain          Immediate 
 csi-high-iops-ms1          cinder.csi.openstack.org   Delete          Immediate           true                   21m
 csi-high-iops-ms1-retain   cinder.csi.openstack.org   Retain          Immediate           true                   21m
 
-Выбираю csi-ceph-ssd-ms1
+Выбираю csi-ceph-ssd-ms1-retain
 
 $ kubectl apply -f ./homework/4.resources-and-persistence/pvc.yaml
 persistentvolumeclaim/pg-storage created
