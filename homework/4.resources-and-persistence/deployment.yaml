@@ -29,11 +29,9 @@ spec:
           limits:
             memory: 512Mi
             cpu: "1"
-            storage: 10Gi
           requests:
             memory: 256Mi
             cpu: "0.2"
-            storage: 10Gi
         name: postgres
         env:
         - name: POSTGRES_USER

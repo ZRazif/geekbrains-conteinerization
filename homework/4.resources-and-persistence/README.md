@@ -99,5 +99,14 @@ csi-high-iops-ms1-retain   cinder.csi.openstack.org   Retain          Immediate 
 
 Выбираю csi-ceph-ssd-ms1
 
+$ kubectl apply -f ./homework/4.resources-and-persistence/pvc.yaml
+persistentvolumeclaim/pg-storage created
+
+$ kubectl get pvc
+NAME         STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS       AGE
+pg-storage   Bound    pvc-26e57360-f992-41c4-be4c-209fa86ed440   10Gi       RWX            csi-ceph-ssd-ms1   43s
+
+
+
 
 
