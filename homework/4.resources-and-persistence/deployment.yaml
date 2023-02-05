@@ -46,7 +46,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: pg-sekret
-              key: POSTGRES_PASSWORD
+              key: PASS
         ports:
         - containerPort: 5432
         volumeMounts:
@@ -56,4 +56,3 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: pg-storage
-          
