@@ -25,6 +25,9 @@ spec:
           mountPath: /var/lib/postgresql/data
       containers:
       - image: postgres:10.13
+        resources:
+          requests:
+            storage: 10Gi
         name: postgres
         env:
         - name: POSTGRES_USER
