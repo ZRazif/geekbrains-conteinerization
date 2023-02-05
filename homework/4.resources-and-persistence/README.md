@@ -56,3 +56,48 @@ CREATE TABLE testtable (testcolumn VARCHAR (50) );
 
 7. После его пересоздания повторите все с п.1, кроме п.4
 Проверьте что созданная ранее таблица никуда не делась.
+
+
+
+
+
+
+
+$export KUBECONFIG="/media/razif/Новый том/GeekBrains/Новая папка (5)/Новая папка (4)/kubernetes-cluster-8663_kubeconfig.yaml"
+
+$ kubectl cluster-info
+Kubernetes control plane is running at https://185.241.195.8:6443
+CoreDNS is running at https://185.241.195.8:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+$ kubectl get node
+NAME                                      STATUS   ROLES    AGE   VERSION
+kubernetes-cluster-8663-default-group-0   Ready    <none>   18m   v1.22.9
+kubernetes-cluster-8663-master-0          Ready    master   18m   v1.22.9
+
+$ kubectl create ns pg
+namespace/pg created
+
+$ kubectl config set-context --current --namespace=pg
+Context "default/kubernetes-cluster-8663" modified.
+
+$ kubectl get storageclasses.storage.k8s.io
+NAME                       PROVISIONER                RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
+csi-ceph-hdd-gz1           cinder.csi.openstack.org   Delete          Immediate           true                   21m
+csi-ceph-hdd-gz1-retain    cinder.csi.openstack.org   Retain          Immediate           true                   21m
+csi-ceph-hdd-ms1           cinder.csi.openstack.org   Delete          Immediate           true                   21m
+csi-ceph-hdd-ms1-retain    cinder.csi.openstack.org   Retain          Immediate           true                   21m
+csi-ceph-ssd-gz1           cinder.csi.openstack.org   Delete          Immediate           true                   21m
+csi-ceph-ssd-gz1-retain    cinder.csi.openstack.org   Retain          Immediate           true                   21m
+csi-ceph-ssd-ms1           cinder.csi.openstack.org   Delete          Immediate           true                   21m
+csi-ceph-ssd-ms1-retain    cinder.csi.openstack.org   Retain          Immediate           true                   21m
+csi-high-iops-gz1          cinder.csi.openstack.org   Delete          Immediate           true                   21m
+csi-high-iops-gz1-retain   cinder.csi.openstack.org   Retain          Immediate           true                   21m
+csi-high-iops-ms1          cinder.csi.openstack.org   Delete          Immediate           true                   21m
+csi-high-iops-ms1-retain   cinder.csi.openstack.org   Retain          Immediate           true                   21m
+
+Выбираю csi-ceph-ssd-ms1
+
+
+
