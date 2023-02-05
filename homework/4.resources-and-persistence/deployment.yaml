@@ -23,7 +23,7 @@ spec:
         name: mount-permissions-fix
         command: ["sh", "-c", "chmod 777 /var/lib/postgresql/data"]
         volumeMounts:
-        - name: data
+        - name: pg-persistent-storage
           mountPath: /var/lib/postgresql/data
       containers:
       - image: postgres:10.13
