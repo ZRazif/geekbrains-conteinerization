@@ -1,12 +1,15 @@
 ---
+
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: pg-pvc-ssd
+  name: pvc1
+  labels:
+    app: postgres
 spec:
   accessModes:
-  - ReadWriteMany
+  - ReadWriteOnce
   resources:
     requests:
       storage: 10Gi
-  storageClassName: "csi-ceph-ssd-ms1"
+  storageClassName: local
