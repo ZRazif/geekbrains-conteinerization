@@ -82,96 +82,44 @@ namespace/pg created
 $ kubectl config set-context --current --namespace=pg
 Context "default/kubernetes-cluster-8663" modified.
 
-$ kubectl get storageclasses.storage.k8s.io
-NAME                       PROVISIONER                RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
-csi-ceph-hdd-gz1           cinder.csi.openstack.org   Delete          Immediate           true                   21m
-csi-ceph-hdd-gz1-retain    cinder.csi.openstack.org   Retain          Immediate           true                   21m
-csi-ceph-hdd-ms1           cinder.csi.openstack.org   Delete          Immediate           true                   21m
-csi-ceph-hdd-ms1-retain    cinder.csi.openstack.org   Retain          Immediate           true                   21m
-csi-ceph-ssd-gz1           cinder.csi.openstack.org   Delete          Immediate           true                   21m
-csi-ceph-ssd-gz1-retain    cinder.csi.openstack.org   Retain          Immediate           true                   21m
-csi-ceph-ssd-ms1           cinder.csi.openstack.org   Delete          Immediate           true                   21m
-csi-ceph-ssd-ms1-retain    cinder.csi.openstack.org   Retain          Immediate           true                   21m
-csi-high-iops-gz1          cinder.csi.openstack.org   Delete          Immediate           true                   21m
-csi-high-iops-gz1-retain   cinder.csi.openstack.org   Retain          Immediate           true                   21m
-csi-high-iops-ms1          cinder.csi.openstack.org   Delete          Immediate           true                   21m
-csi-high-iops-ms1-retain   cinder.csi.openstack.org   Retain          Immediate           true                   21m
-
-Выбираю csi-ceph-ssd-ms1-retain
-
-$ kubectl apply -f ./homework/4.resources-and-persistence/pvc.yaml
-persistentvolumeclaim/pg-storage created
-
-$ kubectl get pvc
-NAME         STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS       AGE
-pg-storage   Bound    pvc-26e57360-f992-41c4-be4c-209fa86ed440   10Gi       RWX            csi-ceph-ssd-ms1   43s
-
-$ kubectl create secret generic pg-secret --from-literal=PASS=testpassword
-secret/pg-secret created
-
-$ kubectl get secret pg-secret
-NAME        TYPE     DATA   AGE
-pg-secret   Opaque   1      39s
-
-$ kubectl get secret pg-secret -oyaml
-apiVersion: v1
-data:
-  PASS: dGVzdHBhc3N3b3Jk
-kind: Secret
-metadata:
-  creationTimestamp: "2023-02-05T15:26:33Z"
-  name: pg-secret
-  namespace: pg
-  resourceVersion: "10834"
-  selfLink: /api/v1/namespaces/pg/secrets/pg-secret
-  uid: 0088ba84-4081-414e-9ce6-38e43bf25608
-type: Opaque
-
-$ kubectl apply -f homework/4.resources-and-persistence/deployment.yaml
-deployment.apps/pg-db created
+$ kubectl apply -f ./homework/4.resources-and-persistence
+deployment.apps/postgres created
+persistentvolume/pv1 created
+persistentvolumeclaim/pvc1 created
+secret/secure created
 
 $ kubectl get po
-NAME                     READY   STATUS    RESTARTS   AGE
-pg-db-85db8cc466-s9j7w   0/1     Pending   0          37s
+NAME                        READY   STATUS              RESTARTS   AGE
+postgres-7f8677b965-2r9k5   0/1     ContainerCreating   0          17s
 
-$ kubectl describe po pg-db-85db8cc466-s9j7w
-Name:             pg-db-85db8cc466-s9j7w
+$ kubectl describe po postgres-7f8677b965-2r9k5
+Name:             postgres-7f8677b965-2r9k5
 Namespace:        pg
 Priority:         0
 Service Account:  default
-Node:             <none>
-Labels:           app=pg-db
-                  pod-template-hash=85db8cc466
-Annotations:      kubernetes.io/limit-ranger:
-                    LimitRanger plugin set: cpu, memory request for init container mount-permissions-fix; cpu, memory limit for init container mount-permissio...
-Status:           Pending
-IP:               
-IPs:              <none>
-Controlled By:    ReplicaSet/pg-db-85db8cc466
-Init Containers:
-  mount-permissions-fix:
-    Image:      busybox
-    Port:       <none>
-    Host Port:  <none>
-    Command:
-      sh
-      -c
-      chmod 777 /var/lib/postgresql/data
-    Limits:
-      cpu:     500m
-      memory:  512Mi
-    Requests:
-      cpu:        100m
-      memory:     64Mi
-    Environment:  <none>
-    Mounts:
-      /var/lib/postgresql/data from data (rw)
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-48q5s (ro)
+Node:             kubernetes-cluster-8663-default-group-0/10.0.0.22
+Start Time:       Sun, 05 Feb 2023 23:04:40 +0500
+Labels:           app=postgres
+                  pod-template-hash=7f8677b965
+Annotations:      cni.projectcalico.org/containerID: 2e50f99be342a0cb33d9bca69f7887bb10d0a490b550087ef5b12065bc6f5490
+                  cni.projectcalico.org/podIP: 10.100.230.193/32
+                  cni.projectcalico.org/podIPs: 10.100.230.193/32
+Status:           Running
+IP:               10.100.230.193
+IPs:
+  IP:           10.100.230.193
+Controlled By:  ReplicaSet/postgres-7f8677b965
 Containers:
   postgres:
-    Image:      postgres:10.13
-    Port:       5432/TCP
-    Host Port:  0/TCP
+    Container ID:   cri-o://9125bd4e707082aa0230c1d06519f4d896c74d888c18d3b32af8a764b4c3ee68
+    Image:          postgres:10.13
+    Image ID:       docker.io/library/postgres@sha256:0bed71d0c0837b4afcd4e04ea5f5a6c680d96049a0ab3770d0fbc22504282abc
+    Port:           5432/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Sun, 05 Feb 2023 23:04:57 +0500
+    Ready:          True
+    Restart Count:  0
     Limits:
       cpu:     1
       memory:  512Mi
@@ -179,22 +127,25 @@ Containers:
       cpu:     200m
       memory:  256Mi
     Environment:
-      POSTGRES_USER:      testuser
-      POSTGRES_DB:        testdatabase
       PGDATA:             /var/lib/postgresql/data/pgdata
-      POSTGRES_PASSWORD:  <set to the key 'PASS' in secret 'pg-secret'>  Optional: false
+      POSTGRES_DB:        testdatabase
+      POSTGRES_USER:      testuser
+      POSTGRES_PASSWORD:  <set to the key 'POSTGRES_PASSWORD' in secret 'secure'>  Optional: false
     Mounts:
-      /var/lib/postgresql/data from data (rw)
-      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-48q5s (ro)
+      /var/lib/postgresql/data from pv1 (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-cxtqb (ro)
 Conditions:
-  Type           Status
-  PodScheduled   False 
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
 Volumes:
-  data:
+  pv1:
     Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
-    ClaimName:  pg-storage
+    ClaimName:  pvc1
     ReadOnly:   false
-  kube-api-access-48q5s:
+  kube-api-access-cxtqb:
     Type:                    Projected (a volume that contains injected data from multiple sources)
     TokenExpirationSeconds:  3607
     ConfigMapName:           kube-root-ca.crt
@@ -205,10 +156,73 @@ Node-Selectors:              <none>
 Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
                              node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
 Events:
-  Type     Reason             Age                 From                Message
-  ----     ------             ----                ----                -------
-  Normal   NotTriggerScaleUp  2m5s                cluster-autoscaler  pod didn't trigger scale-up:
-  Warning  FailedScheduling   8s (x3 over 2m16s)  default-scheduler   0/2 nodes are available: 1 node(s) had taint {CriticalAddonsOnly: True}, that the pod didn't tolerate, 1 node(s) had volume node affinity conflict.
+  Type     Reason            Age    From               Message
+  ----     ------            ----   ----               -------
+  Warning  FailedScheduling  3m41s  default-scheduler  0/2 nodes are available: 2 persistentvolumeclaim "pvc1" not found.
+  Normal   Scheduled         3m39s  default-scheduler  Successfully assigned pg/postgres-7f8677b965-2r9k5 to kubernetes-cluster-8663-default-group-0
+  Normal   Pulling           3m38s  kubelet            Pulling image "postgres:10.13"
+  Normal   Pulled            3m22s  kubelet            Successfully pulled image "postgres:10.13" in 15.711765617s
+  Normal   Created           3m22s  kubelet            Created container postgres
+  Normal   Started           3m22s  kubelet            Started container postgres
+
+$ kubectl get pod -o wide
+NAME                        READY   STATUS    RESTARTS   AGE     IP               NODE                                      NOMINATED NODE   READINESS GATES
+postgres-7f8677b965-2r9k5   1/1     Running   0          4m52s   10.100.230.193   kubernetes-cluster-8663-default-group-0   <none>           <none>
+
+$ kubectl run -t -i --rm --image postgres:10.13 test bash
+If you don't see a command prompt, try pressing enter.
+root@test:/# psql -h 10.100.230.193 -U testuser testdatabase
+Password for user testuser:                                        - testpassword
+psql (10.13 (Debian 10.13-1.pgdg90+1))
+Type "help" for help.
+
+testdatabase=# CREATE TABLE testtable (testcolumn VARCHAR (50) );
+CREATE TABLE
+testdatabase=# \dt
+           List of relations
+ Schema |   Name    | Type  |  Owner   
+--------+-----------+-------+----------
+ public | testtable | table | testuser
+(1 row)
+
+testdatabase=# \q
+root@test:/# exit
+exit
+Session ended, resume using 'kubectl attach test -c test -i -t' command when the pod is running
+pod "test" deleted
+
+$ kubectl delete pod postgres-7f8677b965-2r9k5
+pod "postgres-7f8677b965-2r9k5" deleted
+
+$ kubectl get po
+NAME                        READY   STATUS    RESTARTS   AGE
+postgres-7f8677b965-wltm2   1/1     Running   0          32s
+
+$ kubectl get pod -o wide
+NAME                        READY   STATUS    RESTARTS   AGE    IP               NODE                                      NOMINATED NODE   READINESS GATES
+postgres-7f8677b965-wltm2   1/1     Running   0          118s   10.100.230.195   kubernetes-cluster-8663-default-group-0   <none>           <none>
+
+$ kubectl run -t -i --rm --image postgres:10.13 test bash
+If you don't see a command prompt, try pressing enter.
+root@test:/# psql -h 10.100.230.195 -U testuser testdatabase
+Password for user testuser: 
+psql (10.13 (Debian 10.13-1.pgdg90+1))
+Type "help" for help.
+
+testdatabase=# \dt
+           List of relations
+ Schema |   Name    | Type  |  Owner   
+--------+-----------+-------+----------
+ public | testtable | table | testuser
+(1 row)
+
+testdatabase=# \q
+root@test:/# exit
+exit
+Session ended, resume using 'kubectl attach test -c test -i -t' command when the pod is running
+pod "test" deleted
+
+
 
 
 
