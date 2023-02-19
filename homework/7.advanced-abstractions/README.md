@@ -89,3 +89,33 @@ practice/7.advanced-abstractions/daemonset.yaml
 Тут вы должны увидеть все ноды своего кластера, которые Prometheus смог определить и собирает с ним метрики.
 
 Так же можете попробовать на вкладке Graph выполнить запрос node_load1 - это минутный Load Average для каждой из нод в кластере.
+
+
+
+
+
+export KUBECONFIG="/media/razif/Новый том/GeekBrains/Новая папка (5)/Новая папка (7)/kubernetes-cluster-8594_kubeconfig.yaml"
+
+kubectl cluster-info
+
+kubectl get node
+
+kubectl create ns pg
+
+kubectl config set-context --current --namespace=pg
+
+kubectl apply -f ./homework/7.advanced-abstractions
+
+kubectl get po
+
+kubectl get svc -A
+
+!!! Смотрим EXTERNAL-IP у NAME=nginx-ingress-controller с TYPE=LoadBalancer.
+
+146.185.240.156.
+
+Открываем в браузере адрес 146.185.240.156.
+
+Открываем Status - Targets. Видим ноды кластера, которые Prometheus смог определить и собирает с метрики.
+
+На вкладке Graph выполняем запрос node_load1 - это минутный Load Average для каждой из нод в кластере.
