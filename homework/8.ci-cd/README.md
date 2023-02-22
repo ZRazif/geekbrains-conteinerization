@@ -156,30 +156,3 @@ kubectl get svc -A
 !!! Смотрим EXTERNAL-IP у NAME=nginx-ingress-controller с TYPE=LoadBalancer.
 
 146.185.240.172
-
-$ curl 87.239.108.221/users -H "Host: stage" -X POST -d '{"name": "Vasiya", "age": 34, "city": "Vladivostok"}'
-
-$ curl 87.239.108.221/users -H "Host: stage"
-
-
-
-
-
-
-
-
-
-
-
-kubectl get node
-
-kubectl create ns pg
-
-kubectl config set-context --current --namespace=pg
-
-kubectl apply -f ./homework/7.advanced-abstractions
-
-kubectl get po
-
-kubectl get svc -A
-
