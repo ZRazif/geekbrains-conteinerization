@@ -80,7 +80,106 @@ git commit -m "Initial commit"
 
 git push --set-upstream origin master
 
+Settings - CI/CD - Runners - отключаем Shared Runners
 
 
 
+export KUBECONFIG="/media/razif/Новый том/GeekBrains/Новая папка (5)/Новая папка (8)/kubernetes-cluster-8594_kubeconfig.yaml"
+
+kubectl cluster-info
+
+
+
+kubectl create ns gitlab
+
+Открываем gitlab-runner.yaml - ищем <CHANGE ME> и вставляем вместо него токен
+Settings - CI/CD - Runners - Set up a project runner for a project - And this registration token
+
+kubectl apply --namespace gitlab -f ./homework/8.ci-cd/gitlab-runner/gitlab-runner.yaml
+
+Runner появился в списке Project runners
+
+
+
+kubectl create ns stage
+
+kubectl create ns prod
+
+kubectl create sa deploy --namespace stage
+
+kubectl create rolebinding deploy --serviceaccount stage:deploy --clusterrole edit --namespace stage
+
+kubectl create sa deploy --namespace prod
+
+kubectl create rolebinding deploy --serviceaccount prod:deploy --clusterrole edit --namespace prod
+
+Получаем токены:
+
+export NAMESPACE=stage; kubectl get secret $(kubectl get sa deploy --namespace $NAMESPACE -o jsonpath='{.secrets[0].name}') --namespace $NAMESPACE -o jsonpath='{.data.token}'
+
+export NAMESPACE=prod; kubectl get secret $(kubectl get sa deploy --namespace $NAMESPACE -o jsonpath='{.secrets[0].name}') --namespace $NAMESPACE -o jsonpath='{.data.token}'
+
+Помещаем токены в новые переменные проекта в Gitlab: Settings - CI/CD - Variables
+соответственно:
+K8S_STAGE_CI_TOKEN
+K8S_PROD_CI_TOKEN
+
+Создаем Token: Settings - Repository - Deploy Tokens
+Из него нам понадобятся Username и Password
+
+Создаем секреты для авторизации Kubernetes в Gitlab registry - используем для этого Username и Password из предыдущего шага
+
+kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=gitlab+deploy-token-519505 --docker-password=rYrYaa__TTFirYoQ9_LB --docker-email=zaripovrazif@yandex.ru --namespace stage
+
+kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=gitlab+deploy-token-519505 --docker-password=rYrYaa__TTFirYoQ9_LB --docker-email=zaripovrazif@yandex.ru --namespace prod
+
+kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "gitlab-registry"}]}' -n stage
+
+kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "gitlab-registry"}]}' -n prod
+
+
+
+kubectl apply --namespace stage -f ./homework/8.ci-cd/app/kube/postgres/
+
+kubectl apply --namespace prod -f ./homework/8.ci-cd/app/kube/postgres/
+
+Редактируем ingress.yaml - для host прописываем значение stage
+
+kubectl apply --namespace stage -f ./homework/8.ci-cd/app/kube
+
+Редактируем ingress.yaml - для host прописываем значение prod
+
+kubectl apply --namespace prod -f ./homework/8.ci-cd/app/kube
+
+kubectl get svc -A
+
+!!! Смотрим EXTERNAL-IP у NAME=nginx-ingress-controller с TYPE=LoadBalancer.
+
+146.185.240.172
+
+$ curl 87.239.108.221/users -H "Host: stage" -X POST -d '{"name": "Vasiya", "age": 34, "city": "Vladivostok"}'
+
+$ curl 87.239.108.221/users -H "Host: stage"
+
+
+
+
+
+
+
+
+
+
+
+kubectl get node
+
+kubectl create ns pg
+
+kubectl config set-context --current --namespace=pg
+
+kubectl apply -f ./homework/7.advanced-abstractions
+
+kubectl get po
+
+kubectl get svc -A
 
